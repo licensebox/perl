@@ -1,6 +1,6 @@
 package Licensebox;
 use strict;use warnings;use JSON::PP ();use Encode qw(encode_utf8);use POSIX qw(isfinite);
-our $VERSION='0.1.0';require XSLoader;XSLoader::load('Licensebox',$VERSION);
+our $VERSION='0.2.0';require XSLoader;XSLoader::load('Licensebox',$VERSION);
 my $json=JSON::PP->new->utf8;
 sub _arg {my($s)=@_;die bless({code=>'invalid_argument',message=>'NUL/undefined argument'},'Licensebox::Error') if !defined($s)||ref($s)||index($s,"\0")>=0;encode_utf8($s)}
 sub _keys {my($keys)=@_;for(keys %$keys){_arg($_);_arg($keys->{$_})}$keys}
