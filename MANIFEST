@@ -1,0 +1,16 @@
+AGENTS.md
+CHANGELOG.md
+ci/adapter.sh
+ci/setup.sh
+ci/test.sh
+lib/Licensebox.pm
+LICENSE
+Licensebox.xs
+Makefile.PL
+MANIFEST			This list of files
+native-version.txt
+protocol-lock.json
+README.md
+tests/adapter.pl
+tests/binding_test.pl
+scripts/install-native.sh
