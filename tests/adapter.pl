@@ -7,6 +7,9 @@ sub run {
  my $c=Licensebox::Client->new(product=>$r->{product},keys=>$r->{keys},version=>'conformance',server=>$r->{server},ca_bundle=>$r->{ca_bundle},directory=>$r->{directory},hooks=>{clock=>sub{$r->{now}},machine_binding=>sub{$r->{binding}},on_sign_in=>sub{}});
  my $v;eval {my $op=$r->{op};
  if($op eq 'require'){$v=$c->require_module($r->{module}//'core')}
+ elsif($op eq 'heartbeat'){$v=$c->heartbeat($r->{module}//'core')}
+ elsif($op eq 'heartbeat-repeat'){$c->heartbeat($r->{module}//'core');$v=$c->heartbeat($r->{module}//'core')}
+ elsif($op eq 'heartbeat-after-require'){$c->require_module($r->{module}//'core');$v=$c->heartbeat($r->{module}//'core')}
  elsif($op eq 'repeat'){$c->require_module('core');$v=$c->require_module('core')}
  elsif($op eq 'sign_in'){$v=$c->sign_in(3)}
  elsif($op eq 'request'){$v=$c->request_access(['export'],'café – test')}

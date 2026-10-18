@@ -23,6 +23,7 @@ sub close {my($self)=@_;if($self->{_native}){Licensebox::Native::_close($self->{
 sub DESTROY {local $@;eval {$_[0]->close}}
 sub _call {my($s,$op,$args)=@_;die bless({code=>'invalid_argument'},'Licensebox::Error') unless $s->{_native};$json->decode(Licensebox::Native::_call($s->{_native},$op,$json->encode($args||{})))}
 sub lease {$_[0]->_call('lease')}
+sub heartbeat {$_[0]->_call('heartbeat',{module=>do{Licensebox::_arg($_[1]);$_[1]}})}
 sub require_module {$_[0]->_call('require',{module=>do{Licensebox::_arg($_[1]);$_[1]}})}
 sub status {$_[0]->_call('status')}
 sub sign_in {my($s,$timeout)=@_;$timeout//=0;die bless({code=>'invalid_argument'},'Licensebox::Error') unless isfinite($timeout);$s->_call('sign_in',{timeout=>$timeout})}
