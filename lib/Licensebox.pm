@@ -1,6 +1,6 @@
 package Licensebox;
 use strict;use warnings;use JSON::PP ();use Encode qw(encode_utf8);use POSIX qw(isfinite);
-our $VERSION='0.3.0';require XSLoader;XSLoader::load('Licensebox',$VERSION);
+our $VERSION='0.4.0';require XSLoader;XSLoader::load('Licensebox',$VERSION);
 my $json=JSON::PP->new->utf8;
 sub _arg {my($s)=@_;die bless({code=>'invalid_argument',message=>'NUL/undefined argument'},'Licensebox::Error') if !defined($s)||ref($s)||index($s,"\0")>=0;encode_utf8($s)}
 sub _keys {my($keys)=@_;for(keys %$keys){_arg($_);_arg($keys->{$_})}$keys}
@@ -15,7 +15,7 @@ use strict;use warnings;use POSIX qw(isfinite);
 sub new {
  my($class,%cfg)=@_;my $hooks=delete($cfg{hooks})||{};
  my %opts=(product=>$cfg{product},keys=>Licensebox::_keys($cfg{keys}),version=>$cfg{version}//'');
- for(qw(product version)){Licensebox::_arg($opts{$_})}for(qw(server directory ca_bundle)){if(defined $cfg{$_}){Licensebox::_arg($cfg{$_});$opts{$_}=$cfg{$_}}}
+ for(qw(product version)){Licensebox::_arg($opts{$_})}for(qw(server directory ca_bundle enrol_token)){if(defined $cfg{$_}){Licensebox::_arg($cfg{$_});$opts{$_}=$cfg{$_}}}
  bless {_native=>Licensebox::Native::_create($json->encode(\%opts),$hooks)},$class;
 }
 sub CLONE_SKIP {1}
@@ -32,5 +32,10 @@ sub modules {$_[0]->_call('modules')}
 sub requests {$_[0]->_call('requests')}
 sub request_access {my($s,$modules,$note)=@_;$note//='';Licensebox::_arg($note);Licensebox::_arg($_)for @$modules;$s->_call('request',{modules=>$modules,note=>$note})}
 sub access_link {$_[0]->_call('access-link')}
+# Service accounts and floating copies: require_module checks a floating module
+# out by itself; enrol_token (else LICENSEBOX_ENROL_TOKEN) enrols on first lease.
+sub enrol {$_[0]->_call('enrol',{token=>do{Licensebox::_arg($_[1]);$_[1]}})}
+sub checkout {$_[0]->_call('checkout',{module=>do{Licensebox::_arg($_[1]);$_[1]}})}
+sub checkin {my($s,@modules)=@_;Licensebox::_arg($_)for @modules;$s->_call('checkin',{modules=>[@modules]})}
 sub record {my($s,$command,$success,$elapsed)=@_;Licensebox::_arg($command);die bless({code=>'invalid_argument'},'Licensebox::Error') unless isfinite($elapsed)&&$elapsed>=0;$s->_call('record',{command=>$command,success=>$success?JSON::PP::true:JSON::PP::false,elapsed=>$elapsed})}
 1;

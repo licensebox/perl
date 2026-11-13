@@ -4,7 +4,7 @@ sub run {
  return Licensebox::derive_binding(@$r{qw(product source raw_id)}) if $r->{op} eq 'derive';
  return Licensebox::native_binding($r->{product}) if $r->{op} eq 'native';
  return Licensebox::verify_lease(@$r{qw(token product keys now)}) if $r->{op} eq 'verify';
- my $c=Licensebox::Client->new(product=>$r->{product},keys=>$r->{keys},version=>'conformance',server=>$r->{server},ca_bundle=>$r->{ca_bundle},directory=>$r->{directory},hooks=>{clock=>sub{$r->{now}},machine_binding=>sub{$r->{binding}},on_sign_in=>sub{}});
+ my $c=Licensebox::Client->new(product=>$r->{product},keys=>$r->{keys},version=>'conformance',server=>$r->{server},ca_bundle=>$r->{ca_bundle},enrol_token=>$r->{enrol_token},directory=>$r->{directory},hooks=>{clock=>sub{$r->{now}},machine_binding=>sub{$r->{binding}},on_sign_in=>sub{}});
  my $v;eval {my $op=$r->{op};
  if($op eq 'require'){$v=$c->require_module($r->{module}//'core')}
  elsif($op eq 'heartbeat'){$v=$c->heartbeat($r->{module}//'core')}
@@ -14,6 +14,9 @@ sub run {
  elsif($op eq 'sign_in'){$v=$c->sign_in(3)}
  elsif($op eq 'request'){$v=$c->request_access(['export'],'café – test')}
  elsif($op eq 'access-link'){$v=$c->access_link}
+ elsif($op eq 'enrol'){$v=$c->enrol($r->{token})}
+ elsif($op eq 'checkout'){$v=$c->checkout($r->{module})}
+ elsif($op eq 'checkin'){$c->checkin($r->{module});$v=undef}
  elsif($op eq 'record'){$c->record('export',1,.125);$c->record('export',0,.025);$v=undef}
  else{$v=$c->$op()}
  };my $e=$@;$c->close;die $e if $e;return $v;
